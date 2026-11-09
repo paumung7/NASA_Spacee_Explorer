@@ -12,6 +12,8 @@ Explore NASA's [Astronomy Picture of the Day (APOD)](https://apod.nasa.gov/apod/
 
 Select a preset or enter a custom date range, then select **Explore**. The archive begins June 16, 1995. Ranges are limited by this app to 90 days and requested in chunks of up to 30 days to keep responses manageable. NASA may omit unavailable dates. Favorites are stored locally in the current browser and are not synced across devices.
 
+If APOD is unavailable or returns placeholder logos, the gallery displays clearly labeled NASA Image Library highlights instead. These highlights are not filtered by the selected dates. Gallery results are shown nine per page.
+
 ## API keys and optional proxy
 
 The app uses the [official APOD API](https://api.nasa.gov/) with `start_date`, `end_date`, and `thumbs=true` for video thumbnails. NASA's `DEMO_KEY` is for development and initial testing, with shared rate limits (currently 30 requests per hour and 50 per day). Your own key has its own NASA quota. API availability and quotas are controlled by NASA.

@@ -1,6 +1,18 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { fetchApodRange, shiftDate, validateRange } from './apod.js';
+import { featuredImages, libraryHighlights } from './nasa-images.js';
+
+test('curated galleries have nine distinct NASA images with original links', () => {
+  assert.equal(featuredImages.length, 9);
+  assert.equal(libraryHighlights.length, 9);
+  const images = [...featuredImages.map((entry) => entry.image), ...libraryHighlights.map((entry) => entry.url)];
+  assert.equal(new Set(images).size, 18);
+  assert.equal(featuredImages[0].image, 'https://images-assets.nasa.gov/image/carina_nebula/carina_nebula~medium.jpg');
+  assert.equal(libraryHighlights[0].url, 'https://images-assets.nasa.gov/image/PIA21775/PIA21775~medium.jpg');
+  assert.equal(libraryHighlights[0].hdurl, 'https://images-assets.nasa.gov/image/PIA21775/PIA21775~orig.jpg');
+  assert.ok(libraryHighlights.every((entry) => entry.source === 'NASA Image Library' && entry.media_type === 'image' && entry.hdurl));
+});
 
 test('validates archive, ordering, future, and range limits', () => {
   assert.equal(validateRange('2024-01-01', '2024-03-30', '2024-12-31'), '');

@@ -36,7 +36,8 @@ export async function fetchApodRange(start, end, { signal, fetcher = fetch } = {
   const entries = [];
 
   for (let cursor = start; cursor <= end;) {
-    const chunkEnd = shiftDate(cursor, CHUNK_DAYS - 1) < end ? shiftDate(cursor, CHUNK_DAYS - 1) : end;
+    const lastChunkDate = shiftDate(cursor, CHUNK_DAYS - 1);
+    const chunkEnd = lastChunkDate < end ? lastChunkDate : end;
     const url = new URL(endpoint, globalThis.location?.origin || 'http://localhost');
     url.searchParams.set('start_date', cursor);
     url.searchParams.set('end_date', chunkEnd);

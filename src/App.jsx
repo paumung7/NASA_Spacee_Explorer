@@ -1,33 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { ArrowDown, ArrowDownUp, ArrowRight, ArrowUpRight, CalendarDays, ChevronDown, Compass, Heart, ImageOff, Play, Search, Shuffle, SlidersHorizontal, Sparkles, X } from 'lucide-react';
 import { FIRST_APOD_DATE, fetchApodRange, shiftDate, todayString, validateRange } from './lib/apod';
+import { featuredImages, libraryHighlights } from './lib/nasa-images';
 
-const formatDate = (date, options = { month: 'short', day: 'numeric', year: 'numeric' }) =>
-  new Date(`${date}T00:00:00Z`).toLocaleDateString('en-US', { ...options, timeZone: 'UTC' });
-
-const featuredImages = [
-  { title: 'The Cosmic Cliffs', category: 'STAR-FORMING NEBULA', credit: 'NASA, ESA, CSA, STScI', id: 'carina_nebula', image: 'https://images-assets.nasa.gov/image/carina_nebula/carina_nebula~medium.jpg' },
-  { title: 'Our Blue Marble', category: 'PLANET EARTH', credit: 'NASA / NOAA / GSFC / Suomi NPP', id: 'GSFC_20171208_Archive_e001386', image: 'https://images-assets.nasa.gov/image/GSFC_20171208_Archive_e001386/GSFC_20171208_Archive_e001386~medium.jpg' },
-  { title: 'The Eagle Nebula', category: 'DEEP SPACE', credit: 'NASA / JPL-Caltech', id: 'PIA25433', image: 'https://images-assets.nasa.gov/image/PIA25433/PIA25433~medium.jpg' },
-  { title: 'The Orion Nebula', category: 'STELLAR NURSERY', credit: 'ESA / NASA / JPL-Caltech', id: 'PIA25434', image: 'https://images-assets.nasa.gov/image/PIA25434/PIA25434~medium.jpg' },
-  { title: 'The Andromeda Galaxy', category: 'NEIGHBORING GALAXY', credit: 'NASA / JPL / Caltech', id: 'PIA04921', image: 'https://images-assets.nasa.gov/image/PIA04921/PIA04921~medium.jpg' },
-  { title: 'The Sombrero Galaxy', category: 'DISTANT GALAXY', credit: 'NASA / JPL-Caltech', id: 'PIA15426', image: 'https://images-assets.nasa.gov/image/PIA15426/PIA15426~orig.jpg' },
-  { title: 'The Crab Nebula', category: 'SUPERNOVA REMNANT', credit: 'NASA / ESA', id: 'GSFC_20171208_Archive_e002159', image: 'https://images-assets.nasa.gov/image/GSFC_20171208_Archive_e002159/GSFC_20171208_Archive_e002159~medium.jpg' },
-  { title: 'Solar Flares', category: 'OUR SUN', credit: 'NASA / GSFC / Solar Dynamics Observatory', id: 'PIA17912', image: 'https://images-assets.nasa.gov/image/PIA17912/PIA17912~orig.jpg' },
-  { title: 'Mount Sharp on Mars', category: 'THE RED PLANET', credit: 'NASA / JPL-Caltech / ESA / DLR / FU Berlin / MSSS', id: 'PIA15293', image: 'https://images-assets.nasa.gov/image/PIA15293/PIA15293~medium.jpg' },
-];
-
-const libraryHighlights = [
-  { date: '2017-07-27', title: "Jupiter's Great Red Spot in True Color", media_type: 'image', source: 'NASA Image Library', url: 'https://images-assets.nasa.gov/image/PIA21775/PIA21775~medium.jpg', hdurl: 'https://images-assets.nasa.gov/image/PIA21775/PIA21775~orig.jpg', copyright: 'Björn Jónsson (CC-NC-SA), NASA / JPL-Caltech / SwRI / MSSS', explanation: 'Citizen scientist Björn Jónsson created this natural-color view of Jupiter’s Great Red Spot using images captured by NASA’s Juno spacecraft during its close flyby on July 10, 2017.' },
-  { date: '2013-11-12', title: 'The Day the Earth Smiled', media_type: 'image', source: 'NASA Image Library', url: 'https://images-assets.nasa.gov/image/PIA17172/PIA17172~medium.jpg', hdurl: 'https://images-assets.nasa.gov/image/PIA17172/PIA17172~orig.jpg', copyright: 'NASA / JPL-Caltech / SSI', explanation: 'NASA’s Cassini spacecraft captured this panoramic mosaic of Saturn and its rings while the planet eclipsed the Sun. Earth appears as a pale blue dot in the background.' },
-  { date: '2009-09-24', title: 'Nearside of the Moon', media_type: 'image', source: 'NASA Image Library', url: 'https://images-assets.nasa.gov/image/PIA12235/PIA12235~medium.jpg', hdurl: 'https://images-assets.nasa.gov/image/PIA12235/PIA12235~orig.jpg', copyright: 'ISRO / NASA / JPL-Caltech / Brown University', explanation: 'A view of the Moon’s near side from the Chandrayaan-1 mission, shared by NASA’s Image and Video Library.' },
-  { date: '1999-08-19', title: 'Neptune from Voyager 2', media_type: 'image', source: 'NASA Image Library', url: 'https://images-assets.nasa.gov/image/PIA02210/PIA02210~orig.jpg', hdurl: 'https://images-assets.nasa.gov/image/PIA02210/PIA02210~orig.jpg', copyright: 'NASA / JPL', explanation: 'Voyager 2 captured this contrast-enhanced view of Neptune on August 14, 1989, as the spacecraft approached the distant planet.' },
-  { date: '2007-04-02', title: 'Jupiter’s Moon Europa', media_type: 'image', source: 'NASA Image Library', url: 'https://images-assets.nasa.gov/image/PIA09246/PIA09246~orig.jpg', hdurl: 'https://images-assets.nasa.gov/image/PIA09246/PIA09246~orig.jpg', copyright: 'NASA / Johns Hopkins APL / Southwest Research Institute', explanation: 'A view of Europa, Jupiter’s icy moon, from NASA’s Image and Video Library.' },
-  { date: '2015-12-05', title: 'Pluto’s Icy Badlands', media_type: 'image', source: 'NASA Image Library', url: 'https://images-assets.nasa.gov/image/PIA20199/PIA20199~medium.jpg', hdurl: 'https://images-assets.nasa.gov/image/PIA20199/PIA20199~orig.jpg', copyright: 'NASA / Johns Hopkins APL / Southwest Research Institute', explanation: 'NASA’s New Horizons spacecraft revealed rugged terrain sculpted by erosion and faulting in Pluto’s icy crust.' },
-  { date: '2015-07-13', title: 'Titan and Saturn', media_type: 'image', source: 'NASA Image Library', url: 'https://images-assets.nasa.gov/image/PIA18326/PIA18326~orig.jpg', hdurl: 'https://images-assets.nasa.gov/image/PIA18326/PIA18326~orig.jpg', copyright: 'NASA / JPL-Caltech / Space Science Institute', explanation: 'Saturn’s largest moon, Titan, appears small beside its parent planet in this view from NASA’s Cassini mission.' },
-  { date: '1999-01-08', title: 'A Sliver of Uranus', media_type: 'image', source: 'NASA Image Library', url: 'https://images-assets.nasa.gov/image/PIA01391/PIA01391~orig.jpg', hdurl: 'https://images-assets.nasa.gov/image/PIA01391/PIA01391~orig.jpg', copyright: 'NASA / JPL', explanation: 'A crescent of Uranus seen by Voyager 2, using three color filters combined to produce this image.' },
-  { date: '2013-03-29', title: 'Mercury, Mercury!', media_type: 'image', source: 'NASA Image Library', url: 'https://images-assets.nasa.gov/image/PIA16908/PIA16908~orig.jpg', hdurl: 'https://images-assets.nasa.gov/image/PIA16908/PIA16908~orig.jpg', copyright: 'NASA / Johns Hopkins APL / Carnegie Institution of Washington', explanation: 'A view of Mercury from NASA’s MESSENGER mission, shared by NASA’s Image and Video Library.' },
-];
+const formatDate = (date) =>
+  new Date(`${date}T00:00:00Z`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
 
 const entryKey = (entry) => entry.source ? `${entry.source}:${entry.url}` : `APOD:${entry.date}`;
 
